@@ -111,7 +111,7 @@ app.post("/lead", async (req, res) => {
       return res.status(400).json({ success: false, message: "No lead data" });
     }
 
-    await fetch(process.env.GOOGLE_SHEET_URL, {
+    await fetch(process.env.GOOGLE_SHEET_URL,https://script.google.com/macros/s/AKfycbyn9Xs_gjU0nJTKqVQcvQcU6FWy-uikJrL9Y09u3Ln6bI3OVN198UJTq_FArbqX1Uoy/exec{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
