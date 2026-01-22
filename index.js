@@ -2,13 +2,21 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
+import fetch from "node-fetch";
 
 dotenv.config();
 
 const app = express();
+
+/* =========================
+   MIDDLEWARE
+========================= */
 app.use(cors());
 app.use(express.json());
 
+/* =========================
+   GROQ CLIENT
+========================= */
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
@@ -21,58 +29,46 @@ You are a professional AI business assistant for a digital marketing and web ser
 
 LANGUAGE RULE:
 - Reply in ENGLISH by default.
-- Use Hinglish ONLY if the user writes in Hinglish or Hindi.
+- Use Hinglish ONLY if the user writes in Hindi/Hinglish.
 - Never force Hinglish.
 
 RESPONSE LENGTH:
-- Keep responses concise.
-- 4–6 lines unless user asks for details.
+- Keep replies short (4–6 lines max).
+- Only go detailed if user asks clearly.
 
 ANTI-HALLUCINATION (CRITICAL):
-- You CANNOT actually scan or audit websites.
-- Never claim real-time analysis, speed numbers, errors, or reports.
-- Explain audits conceptually.
-
-SERVICE LOGIC:
-- Website Audit, SEO, GMB, Social Media Audit, Website Development.
-- Explain WHAT the service includes.
-- Do NOT repeat CTAs unnecessarily.
+- Never claim real-time website scanning.
+- Never invent performance data or audit numbers.
+- Explain audits conceptually only.
 
 CTA RULE (VERY IMPORTANT):
-- CTA only when user clearly wants:
-  - audit
-  - expert help
-  - website development
-  - call / meeting
-- CTA should be soft and professional.
+- Do NOT repeat CTA in every reply.
+- Use CTA ONLY when user explicitly asks for:
+  website audit, SEO, GMB, social media, expert help, website development.
+- No CTA spam.
 
-NO WEBSITE CASE:
-- If user has NO website:
-  - Do NOT ask for URL.
-  - Offer website development.
-  - Suggest expert connection.
+NO-WEBSITE LOGIC:
+- If user says they don’t have a website:
+  - Do NOT ask for URL
+  - Offer Website Development service
+  - Offer expert connection
 
-EXPERT CONNECT FLOW:
-- If user asks to connect with expert:
-  - Ask for mobile number once.
-- After number:
-  - Say it’s submitted.
-  - Say expert will contact soon.
-  - Do NOT ask more questions.
+MEETING & EXPERT RULE:
+- If user wants to connect with expert or arrange a call:
+  - Ask politely for mobile number (and email if shared)
+- Once details are shared:
+  - Say clearly that details are submitted
+  - Say expert team will contact shortly
+  - Do NOT ask more questions
 
-MEETING FLOW:
-- Ask date & time once.
-- Confirm once user agrees.
-- Do not loop.
-
-GENERAL QUESTIONS:
-- Answer like ChatGPT normally.
-- Do not push services unnecessarily.
+GENERAL KNOWLEDGE:
+- Answer general questions like ChatGPT.
+- Don’t redirect everything to sales.
 
 TONE:
 - Professional
 - Helpful
-- Business-focused
+- Business friendly
 `;
 
 /* =========================
@@ -97,15 +93,55 @@ app.post("/chat", async (req, res) => {
     res.json({
       reply: completion.choices[0].message.content,
     });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("CHAT ERROR:", error);
     res.status(500).json({ error: "LLM error" });
+  }
+});
+
+/* =========================
+   LEAD SAVE API (CRITICAL)
+   Browser → Render → Google Sheet
+========================= */
+app.post("/lead", async (req, res) => {
+  try {
+    const { phone, email } = req.body;
+
+    if (!phone && !email) {
+      return res.status(400).json({ success: false, message: "No lead data" });
+    }
+
+    await fetch(process.env.GOOGLE_SHEET_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phone: phone || "",
+        email: email || "",
+        source: "AI Chatbot",
+        timestamp: new Date().toISOString(),
+      }),
+    });
+
+    res.json({
+      success: true,
+      message: "Lead saved successfully",
+    });
+  } catch (error) {
+    console.error("LEAD ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lead save failed",
+    });
   }
 });
 
 /* =========================
    SERVER START
 ========================= */
-app.listen(3000, () => {
-  console.log("🚀 AI Chatbot API running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
