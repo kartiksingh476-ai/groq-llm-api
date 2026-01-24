@@ -1,0 +1,53 @@
+[
+  {
+    "keywords": ["1clickdistributors", "parent company", "company intro"],
+    "answer": "1ClickDistributors ek B2B consultancy aur distributor matchmaking platform hai jo brands aur manufacturers ko verified distributors se connect karta hai."
+  },
+  {
+    "keywords": ["website audit", "site audit", "website review"],
+    "answer": "Website audit ek process hai jisme website ki speed, design, mobile friendliness, content, security aur user experience check ki jaati hai taaki performance aur leads improve ho sake."
+  },
+  {
+    "keywords": ["seo audit", "seo analysis"],
+    "answer": "SEO audit website ke on-page SEO, technical SEO, keywords, content aur backlinks ko analyze karta hai aur ranking improve karne ke liye suggestions deta hai."
+  },
+  {
+    "keywords": ["gmb audit", "google my business audit"],
+    "answer": "GMB audit me business profile ki completeness, categories, reviews, photos, posts aur local ranking factors check kiye jaate hain."
+  },
+  {
+    "keywords": ["gmb optimization", "local seo", "google map ranking"],
+    "answer": "GMB optimization me business info update karna, regular posts, reviews manage karna, photos add karna aur local SEO improve karna shamil hota hai."
+  },
+  {
+    "keywords": ["social media audit", "social audit"],
+    "answer": "Social media audit me profile setup, content quality, posting consistency, engagement aur audience growth analyze ki jaati hai."
+  },
+  {
+    "keywords": ["social media setup", "instagram setup", "facebook page setup"],
+    "answer": "Social media setup me business profiles banana, bio optimize karna, branding, highlights aur basic content strategy tayaar ki jaati hai."
+  },
+  {
+    "keywords": ["web development", "website development", "website correction"],
+    "answer": "Web development services me new website banana, redesign, speed optimization, bug fixing aur conversion improvements shamil hote hain."
+  },
+  {
+    "keywords": ["ads", "google ads", "facebook ads", "meta ads"],
+    "answer": "Ads business ko fast traffic aur leads dete hain. Success budget, targeting, creatives aur optimization par depend karti hai."
+  },
+  {
+    "keywords": ["profit loss", "roi", "ads profit"],
+    "answer": "Ads me profit ya loss ROI par depend karta hai. Sahi strategy, testing aur optimization se profitable campaigns banayi ja sakti hain."
+  },
+  {
+    "keywords": ["services", "what services do you offer"],
+    "answer": "Hum website audit, SEO audit, GMB audit & optimization, social media audit, web development, ads management aur business consultancy services provide karte hain."
+  },
+  {
+    "keywords": ["contact", "how to contact"],
+    "answer": "Aap humse website ke contact section ya business inquiry form ke through connect kar sakte hain."
+  }
+]{
+  "system": "You are a professional business and digital marketing chatbot. Always reply in simple Hinglish (Hindi written in English letters). Never reply in pure Hindi script or pure English. Keep answers practical, clear, and beginner-friendly."
+}
+
