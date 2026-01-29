@@ -80,7 +80,6 @@
 
   async function sendMessage() {
     const message = input.value.trim();
-
     if (!message) return;
 
     addMessage(message, "user");
@@ -91,16 +90,22 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: message,          // 🔥 THIS WAS MISSING
+        message: message,
         history: chatHistory
       })
     });
 
     const data = await response.json();
-
     addMessage(data.reply, "bot");
     chatHistory.push({ role: "assistant", content: data.reply });
   }
+
+  // 🔥 ENTER KEY SUPPORT (YEH NAYA PART HAI)
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
 </script>
 
 </body>
