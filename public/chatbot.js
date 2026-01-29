@@ -1,13 +1,15 @@
-/* ===============================
-   AI CHATBOT DEMO (WITH MEMORY)
-================================ */
+/* =================================================
+   AI CHATBOT DEMO (FRONTEND)
+================================================= */
 
-/* 🔧 BACKEND API */
-const API_URL = "https://groq-llm-api.onrender.com/chat";
+console.log("✅ Chatbot JS loaded");
 
-/* ===============================
+/* 🔧 BACKEND CHAT API */
+const CHAT_API_URL = "http://localhost:3000/chat";
+
+/* =================================================
    CHATBOT UI
-================================ */
+================================================= */
 const chatbotHTML = `
 <style>
 #ai-chatbot {
@@ -66,16 +68,14 @@ const chatbotHTML = `
 </div>
 `;
 
+/* =================================================
+   ADD CHATBOT TO PAGE
+================================================= */
 document.body.insertAdjacentHTML("beforeend", chatbotHTML);
 
-/* ===============================
-   CONVERSATION MEMORY
-================================ */
-let chatHistory = [];
-
-/* ===============================
-   SEND MESSAGE
-================================ */
+/* =================================================
+   CHAT FUNCTION
+================================================= */
 async function sendMessage() {
   const input = document.getElementById("userMessage");
   const msg = input.value.trim();
@@ -87,16 +87,12 @@ async function sendMessage() {
   input.value = "";
   chat.scrollTop = chat.scrollHeight;
 
-  chatHistory.push({ role: "user", content: msg });
-
   try {
-    const res = await fetch(API_URL, {
+    const res = await fetch(CHAT_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-  message: msg,
-  history: chatHistory
-})
+        history: [{ role: "user", content: msg }]
       })
     });
 
@@ -105,17 +101,19 @@ async function sendMessage() {
     chat.innerHTML += `<div class="msg bot"><b>Bot:</b> ${data.reply}</div>`;
     chat.scrollTop = chat.scrollHeight;
 
-    chatHistory.push({ role: "assistant", content: data.reply });
-
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     chat.innerHTML += `<div class="msg bot">⚠️ Server not responding</div>`;
   }
 }
 
-/* ===============================
+/* =================================================
    EVENTS
-================================ */
+================================================= */
 document.getElementById("sendBtn").addEventListener("click", sendMessage);
-document.getElementById("userMessage").addEventListener("keypress", e => {
-  if (e.key === "Enter") sendMessage();
-});
+
+document
+  .getElementById("userMessage")
+  .addEventListener("keypress", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
