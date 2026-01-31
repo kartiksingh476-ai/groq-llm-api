@@ -1,15 +1,20 @@
 console.log("✅ Premium Chatbot Loaded");
 
-const CHAT_API_URL = "http://localhost:3000/chat";
+const CHAT_API_URL = "/chat";
 
 /* =========================
-   PREMIUM UI HTML + CSS
+   PREMIUM UI + CSS
 ========================= */
 const chatbotHTML = `
 <style>
-@keyframes fadeIn {
+@keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes typing {
+  0% { content: "."; }
+  33% { content: ".."; }
+  66% { content: "..."; }
 }
 
 #ai-chatbot {
@@ -18,7 +23,7 @@ const chatbotHTML = `
   right: 24px;
   width: 360px;
   background: #020617;
-  color: #fff;
+  color: #e5e7eb;
   border-radius: 16px;
   box-shadow: 0 25px 80px rgba(0,0,0,.6);
   font-family: Inter, system-ui, Arial;
@@ -27,7 +32,7 @@ const chatbotHTML = `
 }
 
 #ai-chatbot header {
-  padding: 16px;
+  padding: 14px 16px;
   background: linear-gradient(135deg,#0ea5e9,#6366f1);
   font-weight: 600;
   text-align: center;
@@ -41,27 +46,45 @@ const chatbotHTML = `
 
 .msg {
   margin-bottom: 12px;
-  animation: fadeIn .25s ease;
+  animation: fadeUp .2s ease;
+  line-height: 1.4;
 }
 
-.user {
+.msg.user {
   text-align: right;
   color: #22c55e;
 }
 
-.bot {
+.msg.bot {
   text-align: left;
   color: #e5e7eb;
 }
 
+.msg.bot span {
+  background: #0b1220;
+  padding: 10px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 90%;
+}
+
+.msg.user span {
+  background: #022c22;
+  padding: 10px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 90%;
+}
+
 .typing {
   font-size: 13px;
-  opacity: .6;
+  opacity: .7;
   font-style: italic;
 }
 
 #chat-input {
   display: flex;
+  gap: 8px;
   padding: 12px;
   background: #020617;
   border-top: 1px solid #1e293b;
@@ -71,9 +94,10 @@ const chatbotHTML = `
   flex: 1;
   background: #020617;
   color: #fff;
-  border: none;
-  outline: none;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
   padding: 10px;
+  outline: none;
 }
 
 #chat-input button {
@@ -81,7 +105,7 @@ const chatbotHTML = `
   border: none;
   color: #fff;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
 }
 </style>
@@ -103,9 +127,26 @@ document.body.insertAdjacentHTML("beforeend", chatbotHTML);
 ========================= */
 const chat = document.getElementById("chat-messages");
 
-function addMsg(text, cls) {
-  chat.innerHTML += `<div class="msg ${cls}">${text}</div>`;
+function addMsg(text, who) {
+  const div = document.createElement("div");
+  div.className = `msg ${who}`;
+  div.innerHTML = `<span>${text}</span>`;
+  chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
+}
+
+function showTyping() {
+  const div = document.createElement("div");
+  div.className = "msg bot typing";
+  div.id = "typing";
+  div.innerHTML = `<span>AI is typing<span id="dots">...</span></span>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById("typing");
+  if (t) t.remove();
 }
 
 async function sendMessage() {
@@ -116,8 +157,7 @@ async function sendMessage() {
   addMsg(msg, "user");
   input.value = "";
 
-  addMsg("AI is typing…", "typing");
-  const typingEl = document.querySelector(".typing");
+  showTyping();
 
   try {
     const res = await fetch(CHAT_API_URL, {
@@ -127,11 +167,11 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    typingEl.remove();
+    hideTyping();
     addMsg(data.reply, "bot");
 
   } catch {
-    typingEl.remove();
+    hideTyping();
     addMsg("⚠️ Server not responding", "bot");
   }
 }
