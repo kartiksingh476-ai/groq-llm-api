@@ -1,119 +1,142 @@
-/* =================================================
-   AI CHATBOT DEMO (FRONTEND)
-================================================= */
+console.log("✅ Premium Chatbot Loaded");
 
-console.log("✅ Chatbot JS loaded");
-
-/* 🔧 BACKEND CHAT API */
 const CHAT_API_URL = "http://localhost:3000/chat";
 
-/* =================================================
-   CHATBOT UI
-================================================= */
+/* =========================
+   PREMIUM UI HTML + CSS
+========================= */
 const chatbotHTML = `
 <style>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 #ai-chatbot {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 320px;
-  font-family: Arial, sans-serif;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0,0,0,.25);
+  bottom: 24px;
+  right: 24px;
+  width: 360px;
+  background: #020617;
+  color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 25px 80px rgba(0,0,0,.6);
+  font-family: Inter, system-ui, Arial;
+  overflow: hidden;
   z-index: 99999;
 }
+
 #ai-chatbot header {
-  background: #0d6efd;
-  color: #fff;
-  padding: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg,#0ea5e9,#6366f1);
+  font-weight: 600;
   text-align: center;
-  font-weight: bold;
 }
+
 #chat-messages {
-  height: 260px;
+  height: 380px;
+  padding: 16px;
   overflow-y: auto;
-  padding: 10px;
-  font-size: 14px;
 }
-.msg { margin-bottom: 8px; }
-.user { text-align: right; color: #000; }
-.bot { text-align: left; color: #0d6efd; }
+
+.msg {
+  margin-bottom: 12px;
+  animation: fadeIn .25s ease;
+}
+
+.user {
+  text-align: right;
+  color: #22c55e;
+}
+
+.bot {
+  text-align: left;
+  color: #e5e7eb;
+}
+
+.typing {
+  font-size: 13px;
+  opacity: .6;
+  font-style: italic;
+}
+
 #chat-input {
   display: flex;
-  border-top: 1px solid #ddd;
+  padding: 12px;
+  background: #020617;
+  border-top: 1px solid #1e293b;
 }
+
 #chat-input input {
   flex: 1;
-  border: none;
-  padding: 10px;
-  outline: none;
-}
-#chat-input button {
-  border: none;
-  background: #0d6efd;
+  background: #020617;
   color: #fff;
-  padding: 10px 15px;
+  border: none;
+  outline: none;
+  padding: 10px;
+}
+
+#chat-input button {
+  background: #6366f1;
+  border: none;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
   cursor: pointer;
 }
 </style>
 
 <div id="ai-chatbot">
-  <header>AI Assistant</header>
+  <header>AI Business Assistant</header>
   <div id="chat-messages"></div>
   <div id="chat-input">
-    <input id="userMessage" placeholder="Type your message..." />
-    <button id="sendBtn">Send</button>
+    <input id="userMessage" placeholder="Ask anything..." />
+    <button id="sendBtn">➤</button>
   </div>
 </div>
 `;
 
-/* =================================================
-   ADD CHATBOT TO PAGE
-================================================= */
 document.body.insertAdjacentHTML("beforeend", chatbotHTML);
 
-/* =================================================
-   CHAT FUNCTION
-================================================= */
+/* =========================
+   CHAT LOGIC
+========================= */
+const chat = document.getElementById("chat-messages");
+
+function addMsg(text, cls) {
+  chat.innerHTML += `<div class="msg ${cls}">${text}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+}
+
 async function sendMessage() {
   const input = document.getElementById("userMessage");
   const msg = input.value.trim();
   if (!msg) return;
 
-  const chat = document.getElementById("chat-messages");
-
-  chat.innerHTML += `<div class="msg user"><b>You:</b> ${msg}</div>`;
+  addMsg(msg, "user");
   input.value = "";
-  chat.scrollTop = chat.scrollHeight;
+
+  addMsg("AI is typing…", "typing");
+  const typingEl = document.querySelector(".typing");
 
   try {
     const res = await fetch(CHAT_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        history: [{ role: "user", content: msg }]
-      })
+      body: JSON.stringify({ message: msg, history: [] })
     });
 
     const data = await res.json();
+    typingEl.remove();
+    addMsg(data.reply, "bot");
 
-    chat.innerHTML += `<div class="msg bot"><b>Bot:</b> ${data.reply}</div>`;
-    chat.scrollTop = chat.scrollHeight;
-
-  } catch (error) {
-    console.error(error);
-    chat.innerHTML += `<div class="msg bot">⚠️ Server not responding</div>`;
+  } catch {
+    typingEl.remove();
+    addMsg("⚠️ Server not responding", "bot");
   }
 }
 
-/* =================================================
-   EVENTS
-================================================= */
-document.getElementById("sendBtn").addEventListener("click", sendMessage);
-
-document
-  .getElementById("userMessage")
-  .addEventListener("keypress", function (e) {
-    if (e.key === "Enter") sendMessage();
-  });
+document.getElementById("sendBtn").onclick = sendMessage;
+document.getElementById("userMessage").addEventListener("keypress", e => {
+  if (e.key === "Enter") sendMessage();
+});
