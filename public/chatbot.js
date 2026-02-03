@@ -3,6 +3,11 @@ console.log("✅ Premium Chatbot Loaded");
 const CHAT_API_URL = "/chat";
 
 /* =========================
+   CHAT MEMORY (IMPORTANT)
+========================= */
+let chatHistory = [];
+
+/* =========================
    PREMIUM UI + CSS
 ========================= */
 const chatbotHTML = `
@@ -10,11 +15,6 @@ const chatbotHTML = `
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
-}
-@keyframes typing {
-  0% { content: "."; }
-  33% { content: ".."; }
-  66% { content: "..."; }
 }
 
 #ai-chatbot {
@@ -139,7 +139,7 @@ function showTyping() {
   const div = document.createElement("div");
   div.className = "msg bot typing";
   div.id = "typing";
-  div.innerHTML = `<span>AI is typing<span id="dots">...</span></span>`;
+  div.innerHTML = `<span>AI is typing...</span>`;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
@@ -157,18 +157,27 @@ async function sendMessage() {
   addMsg(msg, "user");
   input.value = "";
 
+  // ✅ SAVE USER MESSAGE IN HISTORY
+  chatHistory.push({ role: "user", content: msg });
+
   showTyping();
 
   try {
     const res = await fetch(CHAT_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg, history: [] })
+      body: JSON.stringify({
+        message: msg,
+        history: chatHistory
+      })
     });
 
     const data = await res.json();
     hideTyping();
     addMsg(data.reply, "bot");
+
+    // ✅ SAVE BOT REPLY IN HISTORY
+    chatHistory.push({ role: "assistant", content: data.reply });
 
   } catch {
     hideTyping();
